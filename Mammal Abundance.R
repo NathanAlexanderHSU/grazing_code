@@ -16,7 +16,7 @@ mammals<-rbind(my.data[which(my.data$Taxa=="Mammals"
                              & my.data$Response=="Abundance"),],
                my.data[which(my.data$Taxa=="Rodents" 
                              & my.data$Response=="Abundance"),],
-              my.data[which(my.data$Taxa=="Mammals" 
+               my.data[which(my.data$Taxa=="Mammals" 
                              & my.data$Response=="Relative Abundance"),])
 
 write.csv(mammals,"C:\\Users\\nba52\\Desktop\\mams.csv")
@@ -35,7 +35,7 @@ wt2<-wt2[order(wt2$Genus),]
 ###Histogram
 hist(wt2$SMD, breaks=15, xlab="hedge's d", col=2)
 abline(v=0,col=4,lty=3,lwd=5)
-forest(wt2$SMD,wt2$SMD_var,slab=wt2$Genus,pch=19,cex=.5,main="Genus")
+forest(wt2$SMD,wt2$SMD_var,slab=wt2$AuthorYear,pch=19,cex=.5,main="Genus")
 
 
 fsn(wt2$SMD,wt2$SMD_var,type="Rosenberg",alpha=.05,digits=4)
@@ -91,38 +91,46 @@ fixef.model <- rma(SMD ~ #PARAMETER, SMD_var, data=wt2, method = "FE")
                    plot(fixef.model,slab=wt2$Genus)
                    
                    
-                   ranef.model <- rma(SMD~#PARAMETER, SMD_var, data=wt2, method = "HE")
-                                        summary(ranef.model)
-                                      plot(ranef.model)
-                                      forest(ranef.model,slab=wt2$PaperID)
+ ranef.model <- rma(SMD~#PARAMETER, SMD_var, data=wt2, method = "HE")
+ summary(ranef.model)
+ plot(ranef.model)
+ forest(ranef.model,slab=wt2$PaperID)
                                       ##back to problem at hand... comparing alternative approaches to inference
                                       
                                       ##maximum likelihood (also, I-T model selection)
-                                      names(wt2)
-                                      ml.model.reduced1 <- rma(SMD~, SMD_var, data=wt2, method = "REML") #maximum-likelihood
-                                                                summary(ml.model.reduced)
-                                                              ml.model.full    <- rma(SMD~PaperID, SMD_var, data=wt2, method = "REML") 
-                                                                            summary(ml.model.full)          
-                                                                                        ##Bayesian inference (not to be confused with empirical Bayes option in rma, not same thing)
-                                                                                        
-                                                                                        ##define priors (these are "minimally informative" priors for the covariances, see MCMCglmm man pages for help)
-                                                                                        ##the only one of interest here is the "R" covariance, which ends of "translating" to a prior for the among-study
-                                                                                        ##variance in effect sizes
-                                                                                        
-                                                                                        prior = list(R = list(V = 1, nu=0), G = list(list ( V = 1, n = 1, fix=1)))
-                                                                                      
-                                                                                      ##we're using MCMCglmm() to approximate the posterior probability distributions of the parameters of the model
-                                                                                      ##that we're interested in... easier than WinBUGS or JAGS, less flexible
-                                                                                      
-                                                                                      
-                                                                                      ###Will have to remove NAs before running this model
-                                                                                      
-                                                                                      Selected<-wt2[!is.na(wt2$SMD_var)& !is.na(wt2$Genus),]
-                                                                                      names(Selected)
-                                                                                      
-                                                                                      bayes.model<-MCMCglmm(SMD~Genus, mev=Selected$SMD_var, data=Selected, nitt=15000, thin=10, burnin=5000, prior=prior)
-                                                                                      summary(bayes.model)
-                                                                                      
-                                                                                      ##plots MCMC chains and posterior approximations
-                                                                                      plot(bayes.model)
-                                                                                      ##posterior probability distributions... use summary()
+ names(wt2)
+ ml.model.full <- rma(SMD~GrazingRegime + VegetationType, mod=PaperID, SMD_var, data=wt2, method = "REML") #maximum-likelihood
+ summary(ml.model.full)
+ m1<- rma(SMD~VegetationType, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ summary(m1)
+ m2<- rma(SMD~GrazingRegime, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ summary(m2)
+ null<- rma(SMD~1, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ summary(null)
+
+##############################Not used
+
+						 ##Bayesian inference (not to be confused with empirical Bayes option in rma, not same thing)
+                                      
+                                      ##define priors (these are "minimally informative" priors for the covariances, see MCMCglmm man pages for help)
+                                      ##the only one of interest here is the "R" covariance, which ends of "translating" to a prior for the among-study
+                                      ##variance in effect sizes
+                                      
+                                      prior = list(R = list(V = 1, nu=0), G = list(list ( V = 1, n = 1, fix=1)))
+                                      
+                                      ##we're using MCMCglmm() to approximate the posterior probability distributions of the parameters of the model
+                                      ##that we're interested in... easier than WinBUGS or JAGS, less flexible
+                                      
+                                      
+                                      ###Will have to remove NAs before running this model
+                                      
+ Selected<-wt2[!is.na(wt2$SMD_var)& !is.na(wt2$Genus),]
+     names(Selected)
+                                      
+                                      bayes.model<-MCMCglmm(SMD~Genus, mev=Selected$SMD_var, data=Selected, nitt=15000, thin=10, burnin=5000, prior=prior)
+                                      summary(bayes.model)
+                                      
+                                      ##plots MCMC chains and posterior approximations
+                                      plot(bayes.model)
+                                      ##posterior probability distributions... use summary()
+                                      
