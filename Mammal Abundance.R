@@ -15,24 +15,27 @@ names(my.data)
 mammals<-rbind(my.data[which(my.data$Taxa=="Mammals" 
                              & my.data$Response=="Abundance"),],
                my.data[which(my.data$Taxa=="Rodents" 
-                             & my.data$Response=="Abundance"),])
+                             & my.data$Response=="Abundance"),],
+              my.data[which(my.data$Taxa=="Mammals" 
+                             & my.data$Response=="Relative Abundance"),])
 
-
+write.csv(mammals,"C:\\Users\\nba52\\Desktop\\mams.csv")
 head(mammals)
 dim(mammals)
 
 wt2<-escalc(measure="SMD",m1i=TrtMean,m2i=CntrlMean,sd1i=sqrt(TrtVar),
-            sd2i=sqrt(CntrlVar),n1i=n.Trt,n2i=n.Cntrl, 
+            sd2i=sqrt(CntrlVar),n1i=nTrt,n2i=nCntrl, 
             data=mammals,var.names=c("SMD","SMD_var"),digits=4)
+write.csv(wt2,"C:\\Users\\nba52\\Desktop\\wt2.csv")
 head(wt2)
 wt2$Taxa
-wt2<-wt2[order(wt2$AuthorYear),]
+wt2<-wt2[order(wt2$Genus),]
 
 
 ###Histogram
 hist(wt2$SMD, breaks=15, xlab="hedge's d", col=2)
 abline(v=0,col=4,lty=3,lwd=5)
-forest(wt2$SMD,wt2$SMD_var,slab=wt2$Genus,pch=19,main="Genus")
+forest(wt2$SMD,wt2$SMD_var,slab=wt2$Genus,pch=19,cex=.5,main="Genus")
 
 
 fsn(wt2$SMD,wt2$SMD_var,type="Rosenberg",alpha=.05,digits=4)
@@ -95,11 +98,11 @@ fixef.model <- rma(SMD ~ #PARAMETER, SMD_var, data=wt2, method = "FE")
                                       ##back to problem at hand... comparing alternative approaches to inference
                                       
                                       ##maximum likelihood (also, I-T model selection)
-                                      
-                                      ml.model.reduced <- rma(SMD~ #PARAMETERS, SMD_var, data=wt2, method = "REML") #maximum-likelihood
+                                      names(wt2)
+                                      ml.model.reduced1 <- rma(SMD~, SMD_var, data=wt2, method = "REML") #maximum-likelihood
                                                                 summary(ml.model.reduced)
-                                                              ml.model.full    <- rma(SMD ~ #ALLPARAMETERS, var.d, data=wt2, method = "REML") 
-                                                                                        
+                                                              ml.model.full    <- rma(SMD~PaperID, SMD_var, data=wt2, method = "REML") 
+                                                                            summary(ml.model.full)          
                                                                                         ##Bayesian inference (not to be confused with empirical Bayes option in rma, not same thing)
                                                                                         
                                                                                         ##define priors (these are "minimally informative" priors for the covariances, see MCMCglmm man pages for help)
