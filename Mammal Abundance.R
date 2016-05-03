@@ -1,4 +1,4 @@
-install.packages("googlesheets")
+iinstall.packages("googlesheets")
 install.packages("metafor")
 library(googlesheets)
 library(metafor)
@@ -99,13 +99,13 @@ fixef.model <- rma(SMD ~ #PARAMETER, SMD_var, data=wt2, method = "FE")
                                       
                                       ##maximum likelihood (also, I-T model selection)
  names(wt2)
- ml.model.full <- rma(SMD~GrazingRegime + VegetationType, mod=PaperID, SMD_var, data=wt2, method = "REML") #maximum-likelihood
+ ml.model.full <- rma(SMD~GrazingRegime + VegetationType, mod=PaperID, SMD_var, data=wt2, method = "ML") #maximum-likelihood
  summary(ml.model.full)
- m1<- rma(SMD~VegetationType, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ m1<- rma(SMD~VegetationType, mod=PaperID, SMD_var, data=wt2, method = "ML")
  summary(m1)
- m2<- rma(SMD~GrazingRegime, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ m2<- rma(SMD~GrazingRegime, mod=PaperID, SMD_var, data=wt2, method = "ML")
  summary(m2)
- null<- rma(SMD~1, mod=PaperID, SMD_var, data=wt2, method = "REML")
+ null<- rma(SMD~1, mod=PaperID, SMD_var, data=wt2, method = "ML")
  summary(null)
 
 ##############################Not used
@@ -133,4 +133,3 @@ fixef.model <- rma(SMD ~ #PARAMETER, SMD_var, data=wt2, method = "FE")
                                       ##plots MCMC chains and posterior approximations
                                       plot(bayes.model)
                                       ##posterior probability distributions... use summary()
-                                      
