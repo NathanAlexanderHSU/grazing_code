@@ -1,4 +1,4 @@
-iinstall.packages("googlesheets")
+install.packages("googlesheets")
 install.packages("metafor")
 library(googlesheets)
 library(metafor)
